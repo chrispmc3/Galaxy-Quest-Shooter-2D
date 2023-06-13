@@ -6,22 +6,26 @@ public class Enemy : MonoBehaviour
 {
     [SerializeField]
     private float _speed = 5.0f;
+    [SerializeField]
+    private GameObject _laserPrefab;
     private Player _player;
     //handle to animator component
     private Animator _anim;
     private AudioSource _audioSource;
+    private float _fireRate = 3.0f;
+    private float _canFire = -1;
 
     // Start is called before the first frame update
     void Start()
     {  
         _player = GameObject.Find("Player").GetComponent<Player>();
         _audioSource = GetComponent<AudioSource>();
-        //null check player
+
        if (_player == null)
        {
             Debug.LogError("The player is NULL.")     ;
        }
-        //assign component to Anim
+
         _anim = GetComponent<Animator>();
 
         if (_anim == null)
@@ -33,6 +37,25 @@ public class Enemy : MonoBehaviour
 
     // Update is called once per frame
     void Update()
+    {
+        CalculateMovement();
+
+        if (Time.time > _canFire)
+        {
+            _fireRate = Random.Range(3f, 7f);
+            _canFire = Time.time + _fireRate;
+            GameObject enemyLaser = Instantiate(_laserPrefab, transform.position, Quaternion.identity);
+            Laser[] lasers = enemyLaser.GetComponentsInChildren<Laser>();
+            
+            for (int i = 0; i < lasers.Length; i++)
+            {
+                lasers[i].AssignEnemyLaser();
+            }
+            
+        } 
+    }
+
+    void CalculateMovement()
     {
         transform.Translate(Vector3.down * _speed * Time.deltaTime);
 
@@ -53,7 +76,6 @@ public class Enemy : MonoBehaviour
             {
                 player.Damage();
             }
-            //trigger anim
         
             _anim.SetTrigger("OnEnemyDeath");
             _speed = 0;
@@ -62,15 +84,15 @@ public class Enemy : MonoBehaviour
             Destroy(this.gameObject, 1.8f);
         }
 
-        if (other.tag == "Lasers")
+        if (other.tag == "Lasers" && other.transform.name != "Fireball")
         {
             Destroy(other.gameObject);
-            //Add 10 to score
+
             if (_player != null)
             {
                 _player.AddScore(10);
             }
-            //trigger anim
+
             _anim.SetTrigger("OnEnemyDeath");
             _speed = 0;
             _audioSource.Play();
@@ -78,6 +100,20 @@ public class Enemy : MonoBehaviour
             Destroy(GetComponent<Collider2D>());
             Destroy(this.gameObject, 1.8f); 
             
+        }
+        else if (other.tag == "Lasers" && other.transform.name == "Fireball")
+        {
+            if (_player != null)
+            {
+                _player.AddScore(10);
+            }
+
+            _anim.SetTrigger("OnEnemyDeath");
+            _speed = 0;
+            _audioSource.Play();
+            Destroy(GetComponent<Collider2D>());
+            Destroy(this.gameObject, 1.8f); 
+
         }      
     }
 }

@@ -16,6 +16,13 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private Text _restartText;
     private GameManager _gameManager;
+    [SerializeField]
+    private Text _ammoCount;
+    [SerializeField]
+    private Image _thrusterImg;
+    [SerializeField]
+    private Sprite[] _thrusterSprites;
+
 
     // Start is called before the first frame update
     void Start()
@@ -23,11 +30,13 @@ public class UIManager : MonoBehaviour
         _scoreText.text = "Score: " + 0; 
         _gameOverText.gameObject.SetActive(false);
         _gameManager = GameObject.Find("Game_Manager").GetComponent<GameManager>();
+        _ammoCount.text = "Ammo: " + 20;
 
         if (_gameManager == null)
         {
             Debug.LogError("GameManager is NULL.");
         }
+
     }
   
     public void UpdateScore(int playerScore)
@@ -37,13 +46,33 @@ public class UIManager : MonoBehaviour
 
     public void UpdateLives(int currentLives)
     {
+
+        if (currentLives < 0)
+        {
+            currentLives = 0;
+        }
+
         _LivesImg.sprite = _liveSprites[currentLives];
 
-        if(currentLives == 0)
+        if (currentLives == 0)
         {
             GameOverSequence();
         }
     }
+
+    public void UpdateAmmo(int ammoCount)
+    {
+        _ammoCount.text = "Ammo: " + ammoCount.ToString();
+    }
+
+    public void UpdateThruster(int thrusterFuel)
+    {
+        _thrusterImg.sprite = _thrusterSprites[thrusterFuel];
+    }
+
+
+
+
 
     void GameOverSequence()
     {

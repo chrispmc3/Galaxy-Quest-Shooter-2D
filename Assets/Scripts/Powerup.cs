@@ -15,7 +15,7 @@ public class Powerup : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //move down at a speed of 3 (adjust in the inspector)
+
         transform.Translate(Vector3.down * _speed * Time.deltaTime);
         //when we leave the screen, destroy us
         if (transform.position.y < -5f)
@@ -47,12 +47,20 @@ public class Powerup : MonoBehaviour
                     case 2:
                         player.ShieldsActive();
                         break;
+                    case 3:
+                        player.ReloadAmmo();
+                        break;
+                    case 4:
+                        player.AddLife();
+                        break;
+                    case 5:
+                        player.FireBallActive();
+                        break;
                     default:
                         Debug.Log("Default Value");
                         break;
                 }
-
-            }
+            }  
             
             Destroy(this.gameObject);
         }
